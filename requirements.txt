@@ -1,0 +1,10 @@
+certifi==2024.2.2
+charset-normalizer==3.3.2
+dhis2.py==2.3.0
+et-xmlfile==1.1.0
+idna==3.6
+logzero==1.7.0
+openpyxl==3.1.2
+Pygments==2.17.2
+requests==2.31.0
+urllib3==1.26.18
