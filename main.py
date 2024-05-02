@@ -70,7 +70,7 @@ args = parser.parse_args()
 program_fields: str = (
     "id,displayName,programType,"
     "programStages[id,displayName,programStageDataElements[compulsory,"
-    "dataElement[id,name,formName,optionSetValue,optionSet[id,options[name]]]]],"
+    "dataElement[id,name,formName,valueType,optionSetValue,optionSet[id,options[name]]]]],"
     "programTrackedEntityAttributes[trackedEntityAttribute"
     "[id,displayName,formName,generated,valueType,optionSet[id,options[name]],optionSetValue],mandatory]"
 )
@@ -139,6 +139,8 @@ def get_stage_data_elements(stage: str, data_store_vals: list, program_stages: d
                     de_te_attribute_options[column] = opts
                     # track option set for each column
                     column_optionSet[column] = de["dataElement"]["optionSet"]["id"]
+                if de['dataElement']['valueType'] == "BOOLEAN":
+                    de_te_attribute_options[column] = ["No", "Yes"]
 
         return ret
     return []
@@ -167,13 +169,16 @@ if len(tes):
         headers.append(f"{te['trackedEntityAttribute']['displayName']}")
         te_id = f"{te['trackedEntityAttribute']['id']}"
         hidden_headers.append(te_id)
+        if te["mandatory"]:
+            compulsory_headers.append(te_id)
         if te['trackedEntityAttribute']['optionSetValue']:  # we expect data to come from an option set
             options = [opt["name"] for opt in te["trackedEntityAttribute"]["optionSet"]["options"]]
             options.sort(key=lambda x: x)
             de_te_attribute_options[te_id] = options
             column_optionSet[te_id] = te["trackedEntityAttribute"]["optionSet"]["id"]
-            if te["mandatory"]:
-                compulsory_headers.append(te_id)
+        if te['trackedEntityAttribute']['valueType'] == "BOOLEAN":
+            de_te_attribute_options[te_id] = ["No", "Yes"]
+
 
 headings = get_stage_data_elements("socio-economics", dataStoreValues, program_stages)
 for heading in headings:
@@ -218,7 +223,7 @@ date_val.add(f"D{offset + 1}:D{args.records + offset + 1}")
 
 ws1 = wb.create_sheet('MetaData')
 ws1.sheet_state = 'hidden'
-ws1.append(["programID","School Name", "School ID", "#"])
+ws1.append(["programId","School Name", "School ID", "#"])
 ws1.column_dimensions["A"].width = 15
 ws1.column_dimensions["B"].width = 30
 ws1.column_dimensions["C"].width = 15
